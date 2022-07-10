@@ -1,0 +1,263 @@
+<!-- Add Assignment trigger modal -->
+<div class="my-3 text-center d-block">
+  <p-button
+    label="Add New Assignment"
+    type="button"
+    data-bs-toggle="modal"
+    data-bs-target="#staticBackdrop1"
+    (click)="modalAdd()"
+  >
+  </p-button>
+  <!-- Toggle show archive -->
+  <div class="field-checkbox mt-3">
+    <p-checkbox
+      [binary]="true"
+      inputId="binary"
+      (click)="toggleArchiveList()"
+    ></p-checkbox>
+    <label class="mx-1" for="binary">Show archive</label>
+  </div>
+</div>
+
+  <!--Show buttons If there is selected rows -->
+<div class="mb-2">
+  <button
+    *ngIf="selectedRows.length > 0"
+    pButton
+    class="p-button-rounded p-button-danger mx-2"
+    (click)="deleteMany()"
+  >
+    <i class="fa fa-trash" aria-hidden="true"></i>
+  </button>
+  <button
+    *ngIf="selectedRows.length > 0 && !archiveListFlag"
+    pButton
+    class="p-button-rounded"
+    (click)="sendManyToArchive()"
+  >
+    <i class="fa fa-archive" aria-hidden="true"></i>
+  </button>
+</div>
+
+<!-- Task table  -->
+<p-table
+  [value]="(assignmentList$ | async)!"
+  dataKey="id"
+  styleClass="p-datatable-customers"
+  [rowHover]="true"
+  [(selection)]="selectedRows"
+  [rows]="10"
+  [showCurrentPageReport]="true"
+  [rowsPerPageOptions]="[10, 25, 50]"
+  responsiveLayout="scroll"
+  [paginator]="true"
+  [loading]="loading"
+  currentPageReportTemplate="Showing {first} to {last} of {totalRecords} entries"
+  [filterDelay]="0"
+  [globalFilterFields]="['taskName', 'description', 'taskTypeId', 'start']"
+>
+<!-- Header -->
+  <ng-template pTemplate="header">
+    <tr>
+      <th style="width: 3rem">
+        <p-tableHeaderCheckbox></p-tableHeaderCheckbox>
+      </th>
+      <th>#</th>
+      <th pSortableColumn="taskName">
+        <div class="flex justify-content-between align-items-center">
+          Name
+          <p-sortIcon field="taskName"></p-sortIcon>
+          <p-columnFilter
+            type="text"
+            field="taskName"
+            display="menu"
+            class="ml-auto"
+          ></p-columnFilter>
+        </div>
+      </th>
+      <th pSortableColumn="description">
+        <div class="flex justify-content-between align-items-center">
+          Description
+          <p-sortIcon field="description"></p-sortIcon>
+          <p-columnFilter
+            type="text"
+            field="description"
+            display="menu"
+            class="ml-auto"
+          ></p-columnFilter>
+        </div>
+      </th>
+
+      <th pSortableColumn="taskTypeId">
+        <div class="flex justify-content-between align-items-center">
+          Type
+          <p-sortIcon field="taskTypeId"></p-sortIcon>
+          <p-columnFilter
+            type="text"
+            field="taskTypeId"
+            display="menu"
+            class="ml-auto"
+          ></p-columnFilter>
+        </div>
+      </th>
+
+      <th pSortableColumn="start">
+        <div class="flex justify-content-between align-items-center">
+          Date
+          <p-sortIcon field="date"></p-sortIcon>
+          <p-columnFilter
+            type="start"
+            field="start"
+            display="menu"
+            class="ml-auto"
+          ></p-columnFilter>
+        </div>
+      </th>
+      <th>Repetitiveness</th>
+      <th>Del/Edit</th>
+      <th>Archive</th>
+      <th>Done</th>
+    </tr>
+  </ng-template>
+  <!-- Body -->
+  <ng-template pTemplate="body" let-item let-rowIndex="rowIndex">
+    <tr
+      class="p-selectable-row text-{{
+        item.taskArchiveId == 2 ? 'dark' : 'danger'
+      }}"
+    >
+      <td>
+        <p-tableCheckbox [value]="item"></p-tableCheckbox>
+      </td>
+      <td>{{rowIndex+1}}</td>
+      <td>
+        <span class="p-column-title">Name</span>
+        {{ item.taskName }}
+      </td>
+
+      <td>
+        <span class="p-column-title">Description</span>
+        {{ item.description }}
+      </td>
+      <td>
+        <span class="p-column-title">Type</span>
+        {{ assignmentTypesMap.get(item.taskTypeId) }}
+      </td>
+      <td>
+        <span class="p-column-title">Date</span>
+        {{ item.start | date: "shortDate" }}
+        {{
+          item.end != "0001-01-01T00:00:00"
+            ? " - " + (item.end | date: "shortDate")
+            : ""
+        }}
+      </td>
+      <td>{{item.repetitionTask}}</td>
+      <td>
+        <span class="p-column-title">Del/Edit</span>
+        <button class="btn btn-outline-danger me-1" (click)="deleteTask(item)">
+          <i class="fa fa-trash" aria-hidden="true"></i>
+        </button>
+        <button
+          class="btn btn-outline-primary"
+          (click)="modalEdit(item)"
+          data-bs-toggle="modal"
+          data-bs-target="#staticBackdrop2"
+        >
+          <i class="fa fa-pencil" aria-hidden="true"></i>
+        </button>
+      </td>
+      <td>
+        <span class="p-column-title">Archive</span>
+        <button class="btn btn-outline-dark" (click)="sendPullArchive(item)">
+          <i class="fa fa-archive" aria-hidden="true"></i
+          ><span
+            class="badge text-{{
+              item.taskArchiveId == 2 ? 'danger' : 'success'
+            }}"
+            >{{ item.taskArchiveId == 2 ? "push" : "pull" }}</span
+          >
+        </button>
+      </td>
+      <td>
+        <span class="p-column-title">Done</span>
+        <div class="d-flex justify-content-center">
+          <input
+            type="checkbox"
+            *ngIf="item.taskStatus == 'UNSAT'; else elseBlock"
+            (change)="updateSat(item)"
+          />
+          <ng-template #elseBlock
+            ><input
+              type="checkbox"
+              [checked]="true"
+              (change)="updateUnsat(item)"
+          /></ng-template>
+        </div>
+      </td>
+    </tr>
+  </ng-template>
+</p-table>
+
+<!-- Add New Assignment Modal  -->
+<div
+  class="modal fade"
+  id="staticBackdrop1"
+  data-bs-backdrop="static"
+  data-bs-keyboard="false"
+  tabindex="-1"
+  aria-labelledby="staticBackdropLabel"
+  aria-hidden="true"
+>
+  <div class="modal-dialog">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title" id="staticBackdropLabel">Add Assignment</h5>
+        <button
+          type="button"
+          class="btn-close"
+          data-bs-dismiss="modal"
+          aria-label="Close"
+          (click)="modalClose()"
+          id="add-modal-close"
+        ></button>
+      </div>
+      <div class="modal-body">
+        <app-add-assignment></app-add-assignment>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- Edit Assignment Modal  -->
+<div
+  class="modal fade"
+  id="staticBackdrop2"
+  data-bs-backdrop="static"
+  data-bs-keyboard="false"
+  tabindex="-1"
+  aria-labelledby="staticBackdropLabel"
+  aria-hidden="true"
+>
+  <div class="modal-dialog">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title" id="staticBackdropLabel">Edit Assignment</h5>
+        <button
+          type="button"
+          class="btn-close"
+          data-bs-dismiss="modal"
+          aria-label="Close"
+          (click)="modalClose()"
+          id="edit-modal-close"
+        ></button>
+      </div>
+      <div class="modal-body">
+        <app-edit-assignment
+          [assignment]="assignment"
+          *ngIf="activateAddEditAssignmentComponent"
+        ></app-edit-assignment>
+      </div>
+    </div>
+  </div>
+</div>

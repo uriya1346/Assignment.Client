@@ -1,0 +1,94 @@
+<form [formGroup]="addAsignmentForm" (ngSubmit)="addAssignment()">
+  <div class="mb-3">
+    <label class="form-label">Name</label>
+    <input
+      placeholder="type name..."
+      type="text"
+      class="form-control"
+      formControlName="taskName"
+    />
+    <small
+      class="text-danger d-block"
+      *ngIf="taskName && taskName.invalid && taskName.touched"
+      >* Enter valid name 2 to 20 chars</small
+    >
+  </div>
+
+  <div class="mb-3">
+    <label for="taskTypeId" class="form-label">Task Type</label>
+    <select class="form-control" id="taskTypeId" formControlName="taskTypeId">
+      <option
+        *ngFor="let type of assignmentTypesList$ | async"
+        [value]="type.id"
+      >
+        {{ type.taskTypeName }}
+      </option>
+    </select>
+    <small
+      class="text-danger d-block"
+      *ngIf="taskTypeId && taskTypeId.invalid && taskTypeId.touched"
+      >* please choose type</small
+    >
+  </div>
+
+  <div class="mb-3">
+    <label for="description" class="form-label"
+      >Description<small> (not required)</small></label
+    >
+    <input
+      placeholder="type description..."
+      type="text"
+      class="form-control"
+      formControlName="description"
+    />
+    <small
+      class="text-danger d-block"
+      *ngIf="description && description.invalid && description.touched"
+      >* Enter valid description 2 to 99 chars</small
+    >
+  </div>
+
+  <div class="mb-3">
+    <label for="start" class="form-label">Start</label>
+    <input formControlName="start" type="date" class="form-control" />
+    <small
+      class="text-danger d-block"
+      *ngIf="start && start.invalid && start.touched"
+      >* please choose date for start</small
+    >
+  </div>
+
+  <div class="mb-3">
+    <label for="end" class="form-label"
+      >End<small> (not required)</small></label
+    >
+    <input formControlName="end" type="date" class="form-control" />
+  </div>
+
+  <div class="mb-3 text-center">
+    <input
+      type="radio"
+      value="Recurring task"
+      formControlName="repetitionTask"
+    />
+    Recurring task
+    <input
+      type="radio"
+      class="ms-5"
+      value="One-time task"
+      formControlName="repetitionTask"
+    />
+    One-time task
+    <small
+      class="text-danger d-block"
+      *ngIf="repetitionTask && repetitionTask.invalid && repetitionTask.touched"
+      >* please choose whether the task is recurring or one-time</small
+    >
+  </div>
+
+  <div class="d-flex justify-content-center">
+    <button [disabled]="addAsignmentForm.invalid" class="btn btn-primary">
+      Add
+    </button>
+  </div>
+</form>

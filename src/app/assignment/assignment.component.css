@@ -1,0 +1,6 @@
+.gradi{
+	background: linear-gradient(to right, #000000 0%, #e91e63 100%);
+	-webkit-background-clip: text;
+	-webkit-text-fill-color: transparent;
+	font-family: sans-serif;
+}

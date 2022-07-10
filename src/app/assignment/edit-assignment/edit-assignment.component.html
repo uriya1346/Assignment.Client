@@ -1,0 +1,85 @@
+<form>
+    <div class="mb-3">
+      <label for="taskName" class="form-label">Name add</label>
+      <input type="text" class="form-control" [(ngModel)]="taskName" name="taskName" />
+    </div>
+  
+    <div class="mb-3">
+      <label for="taskTypeId" class="form-label">Task Type</label>
+      <select
+        class="form-control"
+        name="taskTypeId"
+        id="taskTypeId"
+        [(ngModel)]="taskTypeId"
+      >
+        <option
+          *ngFor="let type of assignmentTypesList$ | async"
+          [value]="type.id"
+        >
+          {{ type.taskTypeName }}
+        </option>
+      </select>
+    </div>
+  
+    <div class="mb-3">
+      <label for="status" class="form-label">Status</label>
+      <select class="form-control" name="taskStatus" id="taskStatus" [(ngModel)]="taskStatus">
+        <option
+          *ngFor="let status of statusList$ | async"
+          [value]="status.statusOption"
+        >
+          {{ status.statusOption }}
+        </option>
+      </select>
+    </div>
+  
+    <div class="mb-3">
+      <label for="description" class="form-label">Description</label>
+      <input
+        type="text"
+        class="form-control"
+        [(ngModel)]="description"
+        name="description"
+      />
+    </div>
+  
+    <div class="mb-3">
+      <label for="start" class="form-label">Start</label>
+      <input type="date" [(ngModel)]="start" class="form-control" name="start" />
+      <p class="text-center mt-1">{{start | date: "shortDate"}}</p>
+    </div>
+  
+    <div class="mb-3">
+      <label for="end" class="form-label">End</label>
+      <input type="date" [(ngModel)]="end" class="form-control" name="end" />
+      <p class="text-center mt-1">{{end != "0001-01-01T00:00:00" ?  (end | date: "shortDate") : ""}}</p>
+    </div>
+  
+    <div class="mb-3 text-center">
+      <input
+        [(ngModel)]="repetitionTask"
+        type="radio"
+        name="test"
+        value="Recurring task"
+      />
+      Recurring task
+      <input
+        [(ngModel)]="repetitionTask"
+        type="radio"
+        name="test"
+        class="ms-5"
+        value="One-time task"
+      />
+      One-time task
+    </div>
+  
+    <div class="d-flex justify-content-center">
+      <button
+        (click)="updateAssignment()"
+        class="btn btn-primary"
+      >
+        Update
+      </button>
+    </div>
+  </form>
+  
