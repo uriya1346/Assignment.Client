@@ -18,7 +18,7 @@ This project is a task management platform developed from August 2021 to January
 
 1. Clone the repository.
     ```shell
-    git clone https://github.com/uriya1346/Assignment.API.git
+    git clone https://github.com/uriya1346/Assignment.Client.git
     ```
 2. Navigate into the project directory.
     ```shell
